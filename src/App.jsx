@@ -107,8 +107,6 @@ export default function WGU500ExamSimulator() {
   const [examSize, setExamSize] = useState(75);
   const [started, setStarted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [answers, setAnswers] = useState({});
-  const [current, setCurrent] = useState(0);
   const [showRationale, setShowRationale] = useState({});
   const [seed, setSeed] = useState(1);
 
@@ -158,24 +156,27 @@ export default function WGU500ExamSimulator() {
   }, [activeQuestions, answers]);
 if (!authorized) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <h1 className="text-3xl font-bold mb-4">RapidRecall RN</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-100">
+      <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center">
+        <h1 className="text-3xl font-bold mb-4 text-slate-900">RapidRecall RN</h1>
+        <p className="text-slate-600 mb-6">Enter your access code to continue.</p>
 
-      <input
-        type="password"
-        placeholder="Enter Access Code"
-        className="border p-3 rounded-xl mb-4"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && e.target.value === ACCESS_CODE) {
-            setAuthorized(true);
-          }
-        }}
-      />
+        <input
+          type="password"
+          placeholder="Enter Access Code"
+          className="border p-4 rounded-xl mb-4 w-full text-center"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.target.value === ACCESS_CODE) {
+              setAuthorized(true);
+            }
+          }}
+        />
+
+        <p className="text-xs text-slate-400">Press Enter after typing your code.</p>
+      </div>
     </div>
   );
 }
-
-if (!started) {
   if (!started) {
     return (
       <div className="min-h-screen bg-slate-100 p-4 md:p-8">
