@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-const ACCESS_CODE = "pharm2026";
+const ACCESS_CODE = "RN-May-2026";
 const BASE_QUESTIONS = [
   { category: "Cardiac", question: "Before giving digoxin, what should the nurse assess first?", options: ["Temperature", "Respiratory rate", "Apical pulse", "Pain score"], answer: 2, rationale: "Digoxin can slow the heart rate. Check the apical pulse before giving it." },
   { category: "Cardiac", question: "A BNP greater than 100 pg/mL most strongly suggests what condition?", options: ["Asthma", "Heart failure", "Stroke", "Hypoglycemia"], answer: 1, rationale: "BNP rises when ventricles stretch from fluid overload, which supports heart failure." },
