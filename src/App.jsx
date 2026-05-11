@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-
+const ACCESS_CODE = "pharm2026";
 const BASE_QUESTIONS = [
   { category: "Cardiac", question: "Before giving digoxin, what should the nurse assess first?", options: ["Temperature", "Respiratory rate", "Apical pulse", "Pain score"], answer: 2, rationale: "Digoxin can slow the heart rate. Check the apical pulse before giving it." },
   { category: "Cardiac", question: "A BNP greater than 100 pg/mL most strongly suggests what condition?", options: ["Asthma", "Heart failure", "Stroke", "Hypoglycemia"], answer: 1, rationale: "BNP rises when ventricles stretch from fluid overload, which supports heart failure." },
@@ -99,6 +99,9 @@ const QUESTION_BANK = Array.from({ length: 500 }, (_, i) => {
 });
 
 export default function WGU500ExamSimulator() {
+ const [authorized, setAuthorized] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState({});
   const [mode, setMode] = useState("practice");
   const [category, setCategory] = useState("All");
   const [examSize, setExamSize] = useState(75);
@@ -153,7 +156,26 @@ export default function WGU500ExamSimulator() {
     });
     return stats;
   }, [activeQuestions, answers]);
+if (!authorized) {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      <h1 className="text-3xl font-bold mb-4">RapidRecall RN</h1>
 
+      <input
+        type="password"
+        placeholder="Enter Access Code"
+        className="border p-3 rounded-xl mb-4"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && e.target.value === ACCESS_CODE) {
+            setAuthorized(true);
+          }
+        }}
+      />
+    </div>
+  );
+}
+
+if (!started) {
   if (!started) {
     return (
       <div className="min-h-screen bg-slate-100 p-4 md:p-8">
