@@ -173,6 +173,9 @@ if (!authorized) {
         />
 
         <p className="text-xs text-slate-400">Press Enter after typing your code.</p>
+<p className="text-xs text-slate-400 mt-4">
+  Individual access only. Redistribution or sharing of access codes is prohibited.
+</p>
       </div>
     </div>
   );
