@@ -206,9 +206,12 @@ export default function WGU500ExamSimulator() {
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-5 md:p-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-5">
           <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-slate-900">WGU D027 Exam Simulator</h1>
+            <h1 className="text-2xl md:text-4xl font-bold text-slate-900">Advanced Pharmacology RN Exam Simulator</h1>
 <p className="text-sm text-slate-500 mt-2 max-w-2xl mx-auto">
   This educational tool is independently created for study purposes and is not affiliated with or endorsed by WGU, NCLEX, ATI, or any official testing organization.
+</p>
+<p className="text-xs text-slate-400 mt-1">
+  Designed to support advanced pharmacology nursing coursework and independent RN exam preparation, including topics commonly associated with courses such as WGU D027.
 </p>
             <p className="text-slate-600 mt-1">Answered {answeredCount} / {activeQuestions.length}</p>
           </div>
