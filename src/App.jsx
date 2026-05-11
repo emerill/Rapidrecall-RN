@@ -158,7 +158,7 @@ export default function WGU500ExamSimulator() {
     return (
       <div className="min-h-screen bg-slate-100 p-4 md:p-8">
         <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-6 md:p-10">
-          <h1 className="text-3xl md:text-5xl font-bold text-slate-900">WGU D027 500-Question Exam Simulator</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-slate-900">Advanced Pharmacology RN Exam Simulator</h1>
           <p className="mt-3 text-slate-600 text-lg">Practice mode shows rationales right away. Exam mode hides rationales until you submit.</p>
 
           <div className="grid md:grid-cols-3 gap-4 mt-8">
@@ -207,6 +207,9 @@ export default function WGU500ExamSimulator() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-5">
           <div>
             <h1 className="text-2xl md:text-4xl font-bold text-slate-900">WGU D027 Exam Simulator</h1>
+<p className="text-sm text-slate-500 mt-2 max-w-2xl mx-auto">
+  This educational tool is independently created for study purposes and is not affiliated with or endorsed by WGU, NCLEX, ATI, or any official testing organization.
+</p>
             <p className="text-slate-600 mt-1">Answered {answeredCount} / {activeQuestions.length}</p>
           </div>
           <div className="flex gap-2 flex-wrap">
