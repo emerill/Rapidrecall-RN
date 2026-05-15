@@ -1,6 +1,10 @@
 import React, { useMemo, useState } from "react";
-const ACCESS_CODE = "RN-May-2026";
-const BASE_QUESTIONS = [
+
+const ACCESS_CODE = "123";
+
+// Full combined question bank: old + new questions from your pasted code.
+// Total unique questions included: 168
+const QUESTIONS = [
   { category: "Cardiac", question: "Before giving digoxin, what should the nurse assess first?", options: ["Temperature", "Respiratory rate", "Apical pulse", "Pain score"], answer: 2, rationale: "Digoxin can slow the heart rate. Check the apical pulse before giving it." },
   { category: "Cardiac", question: "A BNP greater than 100 pg/mL most strongly suggests what condition?", options: ["Asthma", "Heart failure", "Stroke", "Hypoglycemia"], answer: 1, rationale: "BNP rises when ventricles stretch from fluid overload, which supports heart failure." },
   { category: "Cardiac", question: "Which rhythm has the highest embolic stroke risk?", options: ["PVCs", "Atrial fibrillation", "Sinus bradycardia", "First-degree AV block"], answer: 1, rationale: "Atrial fibrillation causes atrial blood pooling, clot formation, and stroke risk." },
@@ -70,80 +74,151 @@ const BASE_QUESTIONS = [
   { category: "Women/Peds/Safety", question: "Which medication is high-alert and requires careful double-checking?", options: ["Insulin", "Loratadine", "Saline nasal spray", "Artificial tears"], answer: 0, rationale: "Insulin errors can rapidly cause serious harm." },
   { category: "Women/Peds/Safety", question: "Which abbreviation should be avoided?", options: ["U for units", "mg", "mL", "PO"], answer: 0, rationale: "U can be misread. Write units instead." },
   { category: "Women/Peds/Safety", question: "Medication dosing in children is commonly based on what?", options: ["Weight in kg", "Parent height", "Room number", "Age only always"], answer: 0, rationale: "Pediatric doses are often calculated in mg/kg." },
-  { category: "Women/Peds/Safety", question: "Newborn vitamin K prevents what?", options: ["Hemorrhagic disease", "Hypothyroidism", "DKA", "Asthma"], answer: 0, rationale: "Vitamin K supports clotting factor activation." }
+  { category: "Women/Peds/Safety", question: "Newborn vitamin K prevents what?", options: ["Hemorrhagic disease", "Hypothyroidism", "DKA", "Asthma"], answer: 0, rationale: "Vitamin K supports clotting factor activation." },
+  { category: 'Cardiac', question: 'What is the normal ejection fraction?', options: ['25–35%', '40–45%', '55–60%', '70–80%'], answer: 2, explanation: 'Normal EF is approximately 55–60%.' },
+  { category: 'Cardiac', question: 'Is an EF of 50% reduced or preserved?', options: ['Severely reduced', 'Mildly reduced', 'Preserved', 'Cardiogenic shock'], answer: 2, explanation: 'An EF of 50% is generally considered preserved or borderline preserved.' },
+  { category: 'Cardiac', question: 'What are symptoms of left-sided heart failure?', options: ['Peripheral edema', 'Pulmonary congestion/crackles', 'Calf pain', 'Ascites'], answer: 1, explanation: 'Left-sided HF causes pulmonary congestion and dyspnea.' },
+  { category: 'Cardiac', question: 'What are symptoms of right-sided heart failure?', options: ['Pulmonary edema', 'Peripheral edema/ascites', 'Hemoptysis', 'Wheezing'], answer: 1, explanation: 'Right-sided HF causes systemic venous congestion.' },
+  { category: 'Cardiac', question: 'What lab supports heart failure diagnosis?', options: ['Troponin', 'BNP', 'TSH', 'CRP'], answer: 1, explanation: 'BNP rises with ventricular stretch.' },
+  { category: 'Cardiac', question: 'BNP greater than what value suggests HF?', options: ['10', '50', '100', '5000'], answer: 2, explanation: 'BNP >100 supports HF diagnosis.' },
+  { category: 'Cardiac', question: 'What heart disease worsens with exertion?', options: ['Ischemic heart disease', 'Crohn disease', 'Asthma', 'Celiac disease'], answer: 0, explanation: 'Exertion increases myocardial oxygen demand.' },
+  { category: 'Cardiac', question: 'What should be checked before digoxin?', options: ['Temperature', 'Apical pulse', 'Bowel sounds', 'Weight'], answer: 1, explanation: 'Digoxin may cause bradycardia.' },
+  { category: 'Cardiac', question: 'How should warfarin be started?', options: ['Max dose immediately', 'Careful INR-monitored dosing', 'No monitoring needed', 'With potassium'], answer: 1, explanation: 'Warfarin requires INR monitoring.' },
+  { category: 'Cardiac', question: 'What medication class is given after MI?', options: ['Beta blockers', 'Antihistamines', 'Steroids', 'Antifungals'], answer: 0, explanation: 'Beta blockers reduce mortality after MI.' },
+  { category: 'Cardiac', question: 'Best medication for diabetic HTN?', options: ['ACE inhibitor', 'Antihistamine', 'Insulin', 'Statin'], answer: 0, explanation: 'ACE inhibitors protect kidneys.' },
+  { category: 'Cardiac', question: 'Do not combine ACE inhibitors with?', options: ['ARBs', 'SSRIs', 'Antihistamines', 'Insulin'], answer: 0, explanation: 'Combination increases renal injury/hyperkalemia risk.' },
+  { category: 'Cardiac', question: 'First-line uncomplicated HTN treatment?', options: ['Hydrochlorothiazide', 'Digoxin', 'Warfarin', 'Morphine'], answer: 0, explanation: 'Thiazides are common first-line agents.' },
+  { category: 'Cardiac', question: 'When should first antihypertensive dose be taken?', options: ['Morning', 'Noon', 'Night', 'During exercise'], answer: 2, explanation: 'Night dosing may reduce orthostatic injury risk.' },
+  { category: 'Cardiac', question: 'Which antihypertensive should asthma patients avoid?', options: ['ARB', 'ACE inhibitor', 'Nonselective beta blocker', 'CCB'], answer: 2, explanation: 'They can cause bronchoconstriction.' },
+  { category: 'Cardiac', question: 'First-choice calcium channel blocker from study bank?', options: ['Verapamil', 'Digoxin', 'Warfarin', 'Prednisone'], answer: 0, explanation: 'Verapamil is a non-dihydropyridine CCB.' },
+  { category: 'Cardiac', question: 'What medication class helps HTN with CKD?', options: ['ACE/ARB', 'Antihistamines', 'Opioids', 'SSRIs'], answer: 0, explanation: 'ACE/ARBs may slow kidney disease progression.' },
+  { category: 'Cardiac', question: 'What medication may be added to uncontrolled HTN on ACE inhibitor?', options: ['Another ACE inhibitor', 'Amlodipine', 'Digoxin', 'Meperidine'], answer: 1, explanation: 'Amlodipine is commonly added.' },
+  { category: 'Cardiac', question: 'ACE inhibitor side effects?', options: ['Dry cough/hyperkalemia', 'Hair loss', 'Hypoglycemia', 'Hearing loss'], answer: 0, explanation: 'ACE inhibitors increase bradykinin and potassium.' },
+  { category: 'Cardiac', question: 'What side effect occurs with statins?', options: ['Muscle pain', 'Dry mouth', 'Bradycardia', 'Hypercalcemia'], answer: 0, explanation: 'Statins can cause rhabdomyolysis.' },
+  { category: 'Cardiac', question: 'What type of diuretic is spironolactone?', options: ['Loop', 'Potassium-sparing', 'Osmotic', 'Carbonic anhydrase inhibitor'], answer: 1, explanation: 'Spironolactone retains potassium.' },
+  { category: 'Cardiac', question: 'Which diuretic is less effective in renal failure?', options: ['Thiazide', 'SSRI', 'Antihistamine', 'Antipsychotic'], answer: 0, explanation: 'Thiazides are less effective with severe renal impairment.' },
+  { category: 'Endocrine', question: 'Normal TSH range?', options: ['0.4–4.0', '10–20', '20–30', '50–100'], answer: 0, explanation: 'Normal TSH is about 0.4–4.0.' },
+  { category: 'Endocrine', question: 'Elevated TSH usually indicates?', options: ['Hyperthyroidism', 'Hypothyroidism', 'DKA', 'Cushing syndrome'], answer: 1, explanation: 'High TSH usually indicates hypothyroidism.' },
+  { category: 'Endocrine', question: 'What antibody is linked with Hashimoto disease?', options: ['TPO antibody', 'Troponin', 'BNP', 'D-dimer'], answer: 0, explanation: 'TPO antibodies are associated with Hashimoto thyroiditis.' },
+  { category: 'Endocrine', question: 'Symptoms of hypothyroidism?', options: ['Cold intolerance/bradycardia', 'Heat intolerance/tachycardia', 'Fruity breath', 'Stridor'], answer: 0, explanation: 'Hypothyroidism slows metabolism.' },
+  { category: 'Endocrine', question: 'Symptoms of hyperthyroidism?', options: ['Bradycardia', 'Tachycardia/anxiety', 'Weight gain', 'Constipation'], answer: 1, explanation: 'Hyperthyroidism speeds metabolism.' },
+  { category: 'Endocrine', question: 'What causes Graves disease?', options: ['Autoimmune hyperthyroidism', 'Low cortisol', 'Low insulin', 'Beta-globin mutation'], answer: 0, explanation: 'Graves disease causes excess thyroid hormone production.' },
+  { category: 'Endocrine', question: 'How is Graves disease treated?', options: ['Methimazole/PTU', 'Iron only', 'Insulin only', 'HCTZ only'], answer: 0, explanation: 'Methimazole/PTU suppress thyroid hormone production.' },
+  { category: 'Endocrine', question: 'What causes Addison disease?', options: ['Low glucocorticoids', 'High cortisol', 'High insulin', 'High thyroid hormone'], answer: 0, explanation: 'Addison disease is adrenal insufficiency.' },
+  { category: 'Endocrine', question: 'What causes Cushing syndrome?', options: ['Low cortisol', 'High cortisol', 'Low insulin', 'Low thyroid hormone'], answer: 1, explanation: 'Cushing syndrome is caused by excess cortisol.' },
+  { category: 'Endocrine', question: 'Why is HgbA1c tested?', options: ['3-month glucose average', 'HF diagnosis', 'Thyroid function', 'Cancer marker'], answer: 0, explanation: 'HgbA1c reflects long-term glucose control.' },
+  { category: 'Endocrine', question: 'Which insulin is most painful during injection?', options: ['Lantus', 'Lispro', 'Regular', 'NPH'], answer: 0, explanation: 'Lantus may sting because of its acidic formulation.' },
+  { category: 'Endocrine', question: 'Signs of DKA?', options: ['Fruity breath/Kussmaul respirations', 'Dry eyes', 'Stridor', 'Peripheral edema'], answer: 0, explanation: 'DKA causes ketosis and metabolic acidosis.' },
+  { category: 'Respiratory', question: 'What destroys alveolar walls?', options: ['Asthma', 'Bronchitis', 'Emphysema', 'Pleural effusion'], answer: 2, explanation: 'Emphysema destroys alveoli causing air trapping.' },
+  { category: 'Respiratory', question: 'What causes mucus hypersecretion and smooth muscle hypertrophy?', options: ['Bronchitis', 'Crohn disease', 'Hashimoto disease', 'Turner syndrome'], answer: 0, explanation: 'Chronic bronchitis increases mucus production.' },
+  { category: 'Respiratory', question: 'What disease causes reversible bronchial obstruction?', options: ['Asthma', 'Crohn disease', 'Addison disease', 'Turner syndrome'], answer: 0, explanation: 'Asthma causes reversible bronchoconstriction.' },
+  { category: 'Respiratory', question: 'Most common major lung cancer type?', options: ['NSCLC', 'Small cell', 'Sarcoma', 'Lymphoma'], answer: 0, explanation: 'Non-small cell lung cancer is the most common major category.' },
+  { category: 'Respiratory', question: 'What mutations are commonly tested in NSCLC?', options: ['EGFR and ALK', 'BNP and TSH', 'IgA only', 'HgbA1c'], answer: 0, explanation: 'These mutations guide targeted therapy.' },
+  { category: 'Respiratory', question: 'What pediatric condition causes barking cough and stridor?', options: ['Croup', 'Asthma', 'DKA', 'Pneumonia'], answer: 0, explanation: 'Croup classically causes barking cough and stridor.' },
+  { category: 'Respiratory', question: 'What treatment is used for croup?', options: ['Dexamethasone/epinephrine', 'Warfarin', 'Methimazole', 'Ferrous sulfate'], answer: 0, explanation: 'Steroids reduce airway swelling.' },
+  { category: 'Respiratory', question: 'What causes fluid accumulation in pleural space?', options: ['Pleural effusion', 'Croup', 'Graves disease', 'G6PD deficiency'], answer: 0, explanation: 'Pleural effusion is fluid in the pleural space.' },
+  { category: 'Pharmacology', question: 'Which antibiotics should be avoided in pregnancy?', options: ['Fluoroquinolones/tetracyclines', 'Cephalosporins', 'Fosfomycin', 'Penicillins'], answer: 0, explanation: 'They may affect fetal cartilage and bone/teeth development.' },
+  { category: 'Pharmacology', question: 'What medication may treat UTI in pregnancy?', options: ['Fosfomycin', 'Ciprofloxacin', 'Tetracycline', 'Levofloxacin'], answer: 0, explanation: 'Fosfomycin is commonly used in pregnancy.' },
+  { category: 'Pharmacology', question: 'What medications are commonly used for pediatric UTI?', options: ['TMP-SMX/Augmentin/cephalosporins', 'Warfarin', 'Methimazole', 'Meperidine'], answer: 0, explanation: 'These are common pediatric UTI treatments.' },
+  { category: 'Pharmacology', question: 'Combined oral contraceptives are avoided during?', options: ['Breastfeeding', 'Croup', 'Otitis media', 'G6PD deficiency'], answer: 0, explanation: 'Estrogen may reduce milk supply.' },
+  { category: 'Pharmacology', question: 'Common antihistamine side effects?', options: ['Sedation/dry mouth', 'Hemolysis', 'Hyperthyroidism', 'DKA'], answer: 0, explanation: 'First-generation antihistamines have anticholinergic effects.' },
+  { category: 'Pharmacology', question: 'What receptor is involved in allergic symptoms and bronchoconstriction?', options: ['H1 receptor', 'TSH receptor', 'Dopamine receptor', 'Insulin receptor'], answer: 0, explanation: 'H1 receptors mediate allergic responses.' },
+  { category: 'Pharmacology', question: 'What is Florinef used for?', options: ['Adrenal insufficiency', 'Hyperthyroidism', 'Lung cancer', 'Celiac disease'], answer: 0, explanation: 'Fludrocortisone replaces mineralocorticoid effects.' },
+  { category: 'Pharmacology', question: 'Florinef side effects?', options: ['Edema/hypertension/hypokalemia', 'Hyperthyroidism', 'Hemolytic anemia', 'Dry eyes'], answer: 0, explanation: 'Florinef causes sodium and water retention.' },
+  { category: 'Pharmacology', question: 'What are corticosteroid side effects?', options: ['Osteoporosis/immunosuppression', 'Permanent cure of autoimmune disease', 'Hypoglycemia only', 'No infection risk'], answer: 0, explanation: 'Long-term steroids cause many systemic effects.' },
+  { category: 'Pharmacology', question: 'What treats myasthenia gravis?', options: ['Cholinesterase inhibitors', 'ACE inhibitors', 'Antihistamines', 'Statins'], answer: 0, explanation: 'They increase acetylcholine at the neuromuscular junction.' },
+  { category: 'Pharmacology', question: 'What do cholinesterase inhibitors do?', options: ['Increase acetylcholine', 'Destroy acetylcholine', 'Lower BNP', 'Destroy thyroid hormone'], answer: 0, explanation: 'They inhibit acetylcholinesterase.' },
+  { category: 'Pharmacology', question: 'Cholinesterase inhibitor side effects?', options: ['Bradycardia/salivation/diarrhea', 'Hyperkalemia', 'Dry mouth', 'Hyperthyroidism'], answer: 0, explanation: 'They increase parasympathetic activity.' },
+  { category: 'Pharmacology', question: 'Medication used for infusion rigors?', options: ['Meperidine', 'Levothyroxine', 'Methimazole', 'HCTZ'], answer: 0, explanation: 'Meperidine treats rigors during infusions.' },
+  { category: 'Psych', question: 'First-line medication class for depression?', options: ['SSRIs', 'Opioids', 'Antihistamines', 'Diuretics'], answer: 0, explanation: 'SSRIs are effective with favorable safety profiles.' },
+  { category: 'Psych', question: 'What medications are given PRN for acute anxiety?', options: ['Benzodiazepines', 'Statins', 'ACE inhibitors', 'Insulin'], answer: 0, explanation: 'Benzodiazepines work rapidly for anxiety.' },
+  { category: 'Psych', question: 'What medication treats schizophrenia?', options: ['Chlorpromazine', 'HCTZ', 'Levothyroxine', 'Ferrous sulfate'], answer: 0, explanation: 'Chlorpromazine is a first-generation antipsychotic.' },
+  { category: 'Psych', question: 'What medications treat neuropathic pain?', options: ['Duloxetine/pregabalin', 'Warfarin/digoxin', 'Methimazole/PTU', 'Fosfomycin'], answer: 0, explanation: 'Neuropathic pain responds to nerve-modulating drugs.' },
+  { category: 'Psych', question: 'What medication treats PTSD nightmares?', options: ['Prazosin', 'Digoxin', 'Warfarin', 'Levothyroxine'], answer: 0, explanation: 'Prazosin reduces trauma-related nightmares.' },
+  { category: 'Neuro', question: 'How is POTS diagnosed?', options: ['Tilt-table test', 'BNP', 'TSH', 'Colonoscopy'], answer: 0, explanation: 'Tilt-table testing evaluates orthostatic tachycardia.' },
+  { category: 'Neuro', question: 'Crescent-shaped bleed on CT?', options: ['Subdural hematoma', 'Epidural hematoma', 'Croup', 'Pleural effusion'], answer: 0, explanation: 'Subdural hematomas are crescent-shaped.' },
+  { category: 'Neuro', question: 'Lens-shaped bleed on CT?', options: ['Epidural hematoma', 'Subdural hematoma', 'Crohn disease', 'Sjögren syndrome'], answer: 0, explanation: 'Epidural hematomas are lens-shaped.' },
+  { category: 'GI', question: 'What GI tract areas does Crohn disease affect?', options: ['Mouth to anus', 'Colon only', 'Stomach only', 'Esophagus only'], answer: 0, explanation: 'Crohn disease can affect any GI segment.' },
+  { category: 'GI', question: 'What finding is associated with Crohn disease?', options: ['Cobblestoning', 'Smooth mucosa', 'Lens bleed', 'Pleural fluid'], answer: 0, explanation: 'Crohn disease causes cobblestoning and skip lesions.' },
+  { category: 'GI', question: 'What immunoglobulin is associated with celiac disease?', options: ['IgA', 'IgM', 'IgE', 'IgD'], answer: 0, explanation: 'Celiac screening uses IgA tissue transglutaminase antibodies.' },
+  { category: 'GI', question: 'What glands are affected in Sjögren syndrome?', options: ['Tear/salivary glands', 'Adrenal glands', 'Pancreas', 'Pituitary'], answer: 0, explanation: 'Sjögren syndrome causes dry eyes and dry mouth.' },
+  { category: 'Hematology', question: 'What is beta thalassemia?', options: ['Decreased beta-globin synthesis', 'High thyroid hormone', 'Pleural fluid', 'Airway swelling'], answer: 0, explanation: 'Beta thalassemia reduces hemoglobin production.' },
+  { category: 'Hematology', question: 'What medication may be dangerous in beta thalassemia?', options: ['Ferrous sulfate', 'Acetaminophen', 'Methimazole', 'Prazosin'], answer: 0, explanation: 'Iron overload may occur in thalassemia.' },
+  { category: 'Hematology', question: 'First-line treatment in sickle cell crisis?', options: ['Hydration', 'Iron', 'Methimazole', 'Digoxin'], answer: 0, explanation: 'Hydration reduces blood viscosity.' },
+  { category: 'Hematology', question: 'Important parental teaching in sickle cell disease?', options: ['Hydration/vaccines/infection prevention', 'Avoid vaccines', 'Restrict fluids', 'Iron for all'], answer: 0, explanation: 'Children are at increased risk for infection and pain crises.' },
+  { category: 'Hematology', question: 'What should be avoided in G6PD deficiency?', options: ['Fava beans', 'Rice', 'Calcium', 'Water'], answer: 0, explanation: 'Oxidative stress triggers hemolysis.' },
+  { category: 'Hematology', question: 'What does G6PD deficiency cause?', options: ['Hemolytic anemia', 'Hyperthyroidism', 'Heart failure', 'Crohn disease'], answer: 0, explanation: 'Oxidative injury destroys RBCs.' },
+  { category: 'Genetics', question: 'What is Klinefelter syndrome?', options: ['XXY male', 'XO female', 'Trisomy 21', 'Beta-globin defect'], answer: 0, explanation: 'Klinefelter syndrome involves an extra X chromosome.' },
+  { category: 'Genetics', question: 'What is Turner syndrome?', options: ['Missing X chromosome in female', 'XXY male', 'RET mutation', 'Beta-globin defect'], answer: 0, explanation: 'Turner syndrome involves monosomy X.' },
+  { category: 'Genetics', question: 'Who passes X-linked color blindness to sons?', options: ['Mother', 'Father only', 'Both parents', 'Neither parent'], answer: 0, explanation: 'Sons inherit their X chromosome from the mother.' },
+  { category: 'Genetics', question: 'What syndrome may cause pediatric ataxia?', options: ['Fragile X/Prader-Willi', 'HF', 'Croup', 'Celiac disease'], answer: 0, explanation: 'Certain genetic syndromes may cause neurologic findings.' },
+  { category: 'Genetics', question: 'What condition causes waddling gait and toe walking?', options: ['Becker muscular dystrophy', 'Croup', 'Graves disease', 'Pleural effusion'], answer: 0, explanation: 'Muscular dystrophy causes progressive proximal weakness.' },
+  { category: 'Pediatrics', question: 'First-line pediatric otitis media treatment?', options: ['Amoxicillin', 'Ciprofloxacin', 'Methimazole', 'Warfarin'], answer: 0, explanation: 'Amoxicillin is standard first-line therapy.' },
+  { category: 'Pediatrics', question: 'Priority treatment in congenital hypothyroidism?', options: ['Early thyroid replacement', 'Wait several years', 'Beta blocker only', 'Iron only'], answer: 0, explanation: 'Early treatment prevents developmental delay.' },
+  { category: 'Pediatrics', question: 'What should parents monitor in newborn sickle cell disease?', options: ['Fever/swelling/pain/jaundice', 'Hair loss', 'Dry mouth', 'Only thyroid symptoms'], answer: 0, explanation: 'Children are vulnerable to infection and vaso-occlusion.' },
+  { category: 'Oncology', question: 'What drug class is used in some leukemia regimens?', options: ['Glucocorticoids', 'Thiazides', 'Antihistamines', 'ACE inhibitors'], answer: 0, explanation: 'Glucocorticoids can destroy lymphoid cells.' },
+  { category: 'Oncology', question: 'RET oncogene is associated with?', options: ['Medullary thyroid carcinoma', 'Down syndrome', 'Color blindness', 'Prader-Willi'], answer: 0, explanation: 'RET mutations are associated with MEN2 and medullary thyroid carcinoma.' },
+  { category: 'Rapid Review', question: 'What medication requires checking an apical pulse before administration?', options: ['Digoxin', 'Amoxicillin', 'Methimazole', 'Fosfomycin'], answer: 0, explanation: 'Digoxin can cause bradycardia and dysrhythmias.' },
+  { category: 'Rapid Review', question: 'What endocrine disorder causes buffalo hump?', options: ['Cushing syndrome', 'Addison disease', 'Hypothyroidism', 'DKA'], answer: 0, explanation: 'Buffalo hump is associated with cortisol excess.' },
+  { category: 'Rapid Review', question: 'What disease causes dry eyes and dry mouth?', options: ['Sjögren syndrome', 'Crohn disease', 'Asthma', 'DKA'], answer: 0, explanation: 'Sjögren syndrome attacks tear and salivary glands.' },
+  { category: 'Rapid Review', question: 'What condition causes cobblestoning?', options: ['Crohn disease', 'UC', 'Celiac disease', 'GERD'], answer: 0, explanation: 'Crohn disease commonly causes cobblestone mucosa.' },
+  { category: 'Rapid Review', question: 'Which medication class causes dry cough?', options: ['ACE inhibitors', 'SSRIs', 'Statins', 'CCBs'], answer: 0, explanation: 'ACE inhibitors increase bradykinin.' },
+  { category: 'Rapid Review', question: 'Which medication class may cause rhabdomyolysis?', options: ['Statins', 'Antihistamines', 'SSRIs', 'Diuretics'], answer: 0, explanation: 'Statins may cause severe muscle injury.' },
+  { category: 'Rapid Review', question: 'Which disease affects the entire GI tract?', options: ['Crohn disease', 'Ulcerative colitis', 'Celiac disease', 'GERD'], answer: 0, explanation: 'Crohn disease may affect mouth to anus.' },
+  { category: 'Rapid Review', question: 'Which disease is associated with TSH receptor antibodies?', options: ['Graves disease', 'Hashimoto disease', 'DKA', 'Addison disease'], answer: 0, explanation: 'TSH receptor antibodies stimulate the thyroid gland.' },
+  { category: 'Rapid Review', question: 'What is first-line treatment in sickle cell crisis?', options: ['Hydration', 'Iron', 'Digoxin', 'Methimazole'], answer: 0, explanation: 'Hydration reduces blood viscosity.' },
+  { category: 'Rapid Review', question: 'What imaging finding is seen in epidural hematoma?', options: ['Lens-shaped bleed', 'Crescent-shaped bleed', 'Cobblestoning', 'Pleural fluid'], answer: 0, explanation: 'Epidural hematomas are lens-shaped.' },
+  { category: 'Rapid Review', question: 'What imaging finding is seen in subdural hematoma?', options: ['Crescent-shaped bleed', 'Lens-shaped bleed', 'Cobblestoning', 'Pleural fluid'], answer: 0, explanation: 'Subdural hematomas are crescent-shaped.' },
+  { category: 'Rapid Review', question: 'What lab reflects 3-month glucose control?', options: ['HgbA1c', 'BNP', 'TSH', 'Troponin'], answer: 0, explanation: 'HgbA1c estimates average glucose over 3 months.' },
+  { category: 'Rapid Review', question: 'Which disease is associated with TPO antibodies?', options: ['Hashimoto thyroiditis', 'Graves disease', 'Celiac disease', 'HF'], answer: 0, explanation: 'TPO antibodies are linked with Hashimoto disease.' },
+  { category: 'Rapid Review', question: 'What condition causes destruction of alveolar walls?', options: ['Emphysema', 'Bronchitis', 'Asthma', 'Pleural effusion'], answer: 0, explanation: 'Emphysema destroys alveoli.' },
+  { category: 'Rapid Review', question: 'Which medication class is first-line for depression?', options: ['SSRIs', 'Antipsychotics', 'Statins', 'Diuretics'], answer: 0, explanation: 'SSRIs are common first-line antidepressants.' }
 ];
 
-const STEM_PREFIXES = ["", "High-yield: ", "Case review: ", "Safety check: ", "Exam focus: ", "Medication safety: ", "Clinical judgment: ", "Priority concept: "];
-
-function shuffleOptions(base, id) {
-  const mapped = base.options.map((text, index) => ({ text, original: index }));
-  const shuffled = [...mapped].sort((a, b) => ((a.text.length * 31 + id * 17) % 97) - ((b.text.length * 31 + id * 17) % 97));
-  return {
-    options: shuffled.map(x => x.text),
-    answer: shuffled.findIndex(x => x.original === base.answer)
-  };
+function getRationale(q) {
+  return q.rationale || q.explanation || "Review the related concept and medication safety point.";
 }
 
-const QUESTION_BANK = Array.from({ length: 500 }, (_, i) => {
-  const base = BASE_QUESTIONS[i % BASE_QUESTIONS.length];
-  const prefix = STEM_PREFIXES[Math.floor(i / BASE_QUESTIONS.length) % STEM_PREFIXES.length];
-  const shuffled = shuffleOptions(base, i + 1);
-  return {
-    id: i + 1,
-    category: base.category,
-    question: `${prefix}${base.question}`,
-    options: shuffled.options,
-    answer: shuffled.answer,
-    rationale: base.rationale
-  };
-});
+function getLetter(index) {
+  return String.fromCharCode(65 + index);
+}
 
-export default function WGU500ExamSimulator() {
- const [authorized, setAuthorized] = useState(false);
+export default function App() {
+  const [authorized, setAuthorized] = useState(false);
+  const [accessInput, setAccessInput] = useState("");
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [showRationale, setShowRationale] = useState({});
   const [mode, setMode] = useState("practice");
   const [category, setCategory] = useState("All");
-  const [examSize, setExamSize] = useState(75);
-  const [started, setStarted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [showRationale, setShowRationale] = useState({});
-  const [seed, setSeed] = useState(1);
+  const [started, setStarted] = useState(false);
+  const [search, setSearch] = useState("");
 
-  const categories = useMemo(() => ["All", ...Array.from(new Set(QUESTION_BANK.map(q => q.category)))], []);
+  const categories = useMemo(() => ["All", ...Array.from(new Set(QUESTIONS.map(q => q.category)))], []);
 
   const activeQuestions = useMemo(() => {
-    const filtered = category === "All" ? QUESTION_BANK : QUESTION_BANK.filter(q => q.category === category);
-    const shuffled = [...filtered].sort((a, b) => ((a.id * 9301 + seed * 49297) % 233280) - ((b.id * 9301 + seed * 49297) % 233280));
-    return mode === "full" ? QUESTION_BANK : shuffled.slice(0, Math.min(examSize, shuffled.length));
-  }, [category, examSize, mode, seed]);
+    let list = category === "All" ? QUESTIONS : QUESTIONS.filter(q => q.category === category);
+    if (search.trim()) {
+      const term = search.trim().toLowerCase();
+      list = list.filter(q =>
+        q.question.toLowerCase().includes(term) ||
+        q.category.toLowerCase().includes(term) ||
+        q.options.some(opt => opt.toLowerCase().includes(term)) ||
+        getRationale(q).toLowerCase().includes(term)
+      );
+    }
+    return list;
+  }, [category, search]);
 
-  const score = activeQuestions.reduce((total, q, idx) => total + (answers[idx] === q.answer ? 1 : 0), 0);
-  const percent = activeQuestions.length ? Math.round((score / activeQuestions.length) * 100) : 0;
-  const answeredCount = Object.keys(answers).length;
   const q = activeQuestions[current];
 
-  const startExam = () => {
-    setStarted(true);
-    setSubmitted(false);
-    setAnswers({});
-    setShowRationale({});
-    setCurrent(0);
-    setSeed(s => s + 1);
-  };
+  const score = activeQuestions.reduce((total, item, idx) => {
+    return total + (answers[idx] === item.answer ? 1 : 0);
+  }, 0);
 
-  const selectAnswer = (optionIndex) => {
-    setAnswers(prev => ({ ...prev, [current]: optionIndex }));
-    if (mode === "practice") setShowRationale(prev => ({ ...prev, [current]: true }));
-  };
-
-  const reset = () => {
-    setStarted(false);
-    setSubmitted(false);
-    setAnswers({});
-    setShowRationale({});
-    setCurrent(0);
-  };
+  const answeredCount = Object.keys(answers).length;
+  const percent = activeQuestions.length ? Math.round((score / activeQuestions.length) * 100) : 0;
 
   const categoryStats = useMemo(() => {
     const stats = {};
@@ -154,172 +229,191 @@ export default function WGU500ExamSimulator() {
     });
     return stats;
   }, [activeQuestions, answers]);
-if (!authorized) {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-100">
-      <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center">
-        <h1 className="text-3xl font-bold mb-4 text-slate-900">RapidRecall RN</h1>
-        <p className="text-slate-600 mb-6">Enter your access code to continue.</p>
 
-        <input
-          type="password"
-          placeholder="Enter Access Code"
-          className="border p-4 rounded-xl mb-4 w-full text-center"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && e.target.value === ACCESS_CODE) {
-              setAuthorized(true);
-            }
-          }}
-        />
+  const startQuiz = () => {
+    setStarted(true);
+    setSubmitted(false);
+    setAnswers({});
+    setShowRationale({});
+    setCurrent(0);
+  };
 
-        <p className="text-xs text-slate-400">Press Enter after typing your code.</p>
-<p className="text-xs text-slate-400 mt-4">
-  Individual access only. Redistribution or sharing of access codes is prohibited.
-</p>
-      </div>
-    </div>
-  );
-}
-  if (!started) {
+  const resetQuiz = () => {
+    setStarted(false);
+    setSubmitted(false);
+    setAnswers({});
+    setShowRationale({});
+    setCurrent(0);
+  };
+
+  const selectAnswer = (idx) => {
+    if (submitted) return;
+    setAnswers(prev => ({ ...prev, [current]: idx }));
+    if (mode === "practice") {
+      setShowRationale(prev => ({ ...prev, [current]: true }));
+    }
+  };
+
+  const next = () => setCurrent(c => Math.min(activeQuestions.length - 1, c + 1));
+  const previous = () => setCurrent(c => Math.max(0, c - 1));
+
+  if (!authorized) {
     return (
-      <div className="min-h-screen bg-slate-100 p-4 md:p-8">
-        <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-6 md:p-10">
-          <h1 className="text-3xl md:text-5xl font-bold text-slate-900">Advanced Pharmacology RN Exam Simulator</h1>
-          <p className="mt-3 text-slate-600 text-lg">Practice mode shows rationales right away. Exam mode hides rationales until you submit.</p>
-<p className="text-sm text-slate-500 mt-2 max-w-3xl">
-  Independently developed educational study tool. Not affiliated with or endorsed by WGU, NCLEX, ATI, or any official testing organization.
-</p>
-
-<p className="text-xs text-slate-400 mt-1 max-w-3xl">
-  Designed to support advanced pharmacology nursing coursework and independent RN exam preparation, including topics commonly associated with courses such as WGU D027.
-</p>
-          <div className="grid md:grid-cols-3 gap-4 mt-8">
-            <div className="p-5 rounded-2xl bg-slate-50 border">
-              <label className="font-semibold text-slate-800">Mode</label>
-              <select className="mt-2 w-full p-3 rounded-xl border" value={mode} onChange={e => setMode(e.target.value)}>
-                <option value="practice">Practice with instant rationale</option>
-                <option value="exam">Exam mode</option>
-                <option value="full">Full 500-question bank</option>
-              </select>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-slate-50 border">
-              <label className="font-semibold text-slate-800">Category</label>
-              <select className="mt-2 w-full p-3 rounded-xl border" value={category} onChange={e => setCategory(e.target.value)} disabled={mode === "full"}>
-                {categories.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-slate-50 border">
-              <label className="font-semibold text-slate-800">Question Set Size</label>
-              <select className="mt-2 w-full p-3 rounded-xl border" value={examSize} onChange={e => setExamSize(Number(e.target.value))} disabled={mode === "full"}>
-                <option value={25}>25 questions</option>
-                <option value={50}>50 questions</option>
-                <option value={75}>75 questions</option>
-                <option value={100}>100 questions</option>
-                <option value={125}>125 questions</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="mt-8 p-5 rounded-2xl bg-blue-50 border border-blue-200">
-            <h2 className="font-bold text-blue-950 text-xl">Study strategy</h2>
-            <p className="mt-2 text-blue-900">Aim for 80% or higher. Retake weak categories until you can explain why each wrong answer is wrong.</p>
-          </div>
-
-          <button onClick={startExam} className="mt-8 px-8 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-slate-700">Start Simulator</button>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9", padding: 20 }}>
+        <div style={{ width: "100%", maxWidth: 420, background: "white", padding: 28, borderRadius: 24, boxShadow: "0 10px 30px rgba(0,0,0,0.12)", textAlign: "center" }}>
+          <h1 style={{ margin: 0, fontSize: 32 }}>RapidRecall RN</h1>
+          <p style={{ color: "#475569" }}>Enter your access code to continue.</p>
+          <input
+            type="password"
+            value={accessInput}
+            onChange={e => setAccessInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && accessInput === ACCESS_CODE) setAuthorized(true); }}
+            placeholder="Enter Access Code"
+            style={{ width: "100%", padding: 14, borderRadius: 12, border: "1px solid #cbd5e1", textAlign: "center", fontSize: 18, boxSizing: "border-box" }}
+          />
+          <button
+            onClick={() => setAuthorized(accessInput === ACCESS_CODE)}
+            style={{ marginTop: 14, width: "100%", padding: 14, borderRadius: 12, border: 0, background: "#0f172a", color: "white", fontWeight: 700 }}
+          >
+            Enter
+          </button>
+          <p style={{ color: "#94a3b8", fontSize: 12 }}>Access code: 123</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-8">
-      <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-5 md:p-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-5">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-slate-900">Advanced Pharmacology RN Exam Simulator</h1>
-<p className="text-sm text-slate-500 mt-2 max-w-2xl mx-auto">
-  This educational tool is independently created for study purposes and is not affiliated with or endorsed by WGU, NCLEX, ATI, or any official testing organization.
-</p>
-<p className="text-xs text-slate-400 mt-1">
-  Designed to support advanced pharmacology nursing coursework and independent RN exam preparation, including topics commonly associated with courses such as WGU D027.
-</p>
-            <p className="text-slate-600 mt-1">Answered {answeredCount} / {activeQuestions.length}</p>
+  if (!started) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#f1f5f9", padding: 20 }}>
+        <div style={{ maxWidth: 980, margin: "0 auto", background: "white", padding: 28, borderRadius: 24, boxShadow: "0 10px 30px rgba(0,0,0,0.10)" }}>
+          <h1 style={{ marginTop: 0, fontSize: 36 }}>Advanced Pharmacology RN Quiz App</h1>
+          <p style={{ color: "#475569", fontSize: 18 }}>Includes all combined old + new questions found in your pasted code.</p>
+          <h2>Total questions included: {QUESTIONS.length}</h2>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14, marginTop: 22 }}>
+            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 16, border: "1px solid #e2e8f0" }}>
+              <label style={{ fontWeight: 700 }}>Mode</label>
+              <select value={mode} onChange={e => setMode(e.target.value)} style={{ width: "100%", padding: 12, marginTop: 8, borderRadius: 12 }}>
+                <option value="practice">Practice: show rationale right away</option>
+                <option value="exam">Exam: hide rationale until submit</option>
+                <option value="flashcard">Flashcard mode</option>
+              </select>
+            </div>
+
+            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 16, border: "1px solid #e2e8f0" }}>
+              <label style={{ fontWeight: 700 }}>Category</label>
+              <select value={category} onChange={e => { setCategory(e.target.value); setCurrent(0); }} style={{ width: "100%", padding: 12, marginTop: 8, borderRadius: 12 }}>
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
+            <div style={{ background: "#f8fafc", padding: 16, borderRadius: 16, border: "1px solid #e2e8f0" }}>
+              <label style={{ fontWeight: 700 }}>Search</label>
+              <input value={search} onChange={e => { setSearch(e.target.value); setCurrent(0); }} placeholder="Search questions" style={{ width: "100%", padding: 12, marginTop: 8, borderRadius: 12, border: "1px solid #cbd5e1", boxSizing: "border-box" }} />
+            </div>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <button onClick={() => setSubmitted(true)} className="px-4 py-3 rounded-xl bg-green-700 text-white font-semibold">Submit / Review</button>
-            <button onClick={reset} className="px-4 py-3 rounded-xl bg-slate-200 text-slate-900 font-semibold">Reset</button>
+
+          <div style={{ marginTop: 22, background: "#eff6ff", border: "1px solid #bfdbfe", padding: 16, borderRadius: 16 }}>
+            <strong>Study tip:</strong> Use Practice mode first. Then switch to Exam mode once you can explain why each wrong answer is wrong.
+          </div>
+
+          <button onClick={startQuiz} style={{ marginTop: 24, padding: "16px 24px", borderRadius: 14, border: 0, background: "#0f172a", color: "white", fontWeight: 800, fontSize: 16 }}>
+            Start Quiz
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!q) {
+    return (
+      <div style={{ padding: 20 }}>
+        <h2>No questions found.</h2>
+        <button onClick={resetQuiz}>Back</button>
+      </div>
+    );
+  }
+
+  const reveal = submitted || showRationale[current] || mode === "flashcard";
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f1f5f9", padding: 20 }}>
+      <div style={{ maxWidth: 980, margin: "0 auto", background: "white", padding: 24, borderRadius: 24, boxShadow: "0 10px 30px rgba(0,0,0,0.10)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", borderBottom: "1px solid #e2e8f0", paddingBottom: 16 }}>
+          <div>
+            <h1 style={{ margin: 0 }}>RapidRecall RN</h1>
+            <p style={{ margin: "6px 0", color: "#475569" }}>Question {current + 1} of {activeQuestions.length} · {q.category}</p>
+            <p style={{ margin: 0, color: "#64748b" }}>Answered {answeredCount} / {activeQuestions.length}</p>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <button onClick={() => setSubmitted(true)} style={{ padding: "12px 14px", borderRadius: 12, border: 0, background: "#15803d", color: "white", fontWeight: 700 }}>Submit / Review</button>
+            <button onClick={resetQuiz} style={{ padding: "12px 14px", borderRadius: 12, border: 0, background: "#e2e8f0", fontWeight: 700 }}>Reset</button>
           </div>
         </div>
 
-        <div className="mt-5 h-3 bg-slate-200 rounded-full overflow-hidden">
-          <div className="h-full bg-slate-800" style={{ width: `${(answeredCount / activeQuestions.length) * 100}%` }} />
+        <div style={{ height: 12, background: "#e2e8f0", borderRadius: 999, marginTop: 16, overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${(answeredCount / activeQuestions.length) * 100}%`, background: "#0f172a" }} />
         </div>
 
         {submitted && (
-          <div className="mt-6 p-5 rounded-2xl bg-emerald-50 border border-emerald-200">
-            <h2 className="text-2xl font-bold text-emerald-950">Score: {score} / {activeQuestions.length} — {percent}%</h2>
-            <p className="mt-1 text-emerald-900">{percent >= 80 ? "Strong pass-range performance. Keep reviewing rationales." : "Keep practicing. Focus on weak categories below."}</p>
-            <div className="grid md:grid-cols-2 gap-3 mt-4">
+          <div style={{ marginTop: 18, background: "#ecfdf5", border: "1px solid #bbf7d0", padding: 16, borderRadius: 16 }}>
+            <h2 style={{ margin: 0 }}>Score: {score} / {activeQuestions.length} — {percent}%</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 10, marginTop: 12 }}>
               {Object.entries(categoryStats).map(([cat, s]) => (
-                <div key={cat} className="bg-white rounded-xl border p-3">
-                  <p className="font-semibold text-slate-800">{cat}</p>
-                  <p className="text-slate-600">{s.correct} / {s.total} correct — {Math.round((s.correct / s.total) * 100)}%</p>
+                <div key={cat} style={{ background: "white", border: "1px solid #d1fae5", borderRadius: 12, padding: 12 }}>
+                  <strong>{cat}</strong>
+                  <p style={{ margin: "4px 0" }}>{s.correct} / {s.total} correct — {Math.round((s.correct / s.total) * 100)}%</p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {q && (
-          <div className="mt-8 border rounded-3xl p-5 md:p-8 bg-slate-50">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold text-slate-500">Question {current + 1} of {activeQuestions.length} · {q.category}</p>
-                <h2 className="text-xl md:text-2xl font-bold text-slate-900 mt-2">{q.question}</h2>
-              </div>
-              <span className="text-xs rounded-full bg-white border px-3 py-1 text-slate-600">ID {q.id}</span>
-            </div>
+        <div style={{ marginTop: 22, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 20, padding: 20 }}>
+          <p style={{ color: "#64748b", fontWeight: 700 }}>{q.category}</p>
+          <h2 style={{ fontSize: 24 }}>{q.question}</h2>
 
-            <div className="mt-6 space-y-3">
+          {mode === "flashcard" ? (
+            <div style={{ background: "#1d4ed8", color: "white", padding: 24, borderRadius: 18, marginTop: 16 }}>
+              <h3>Answer: {getLetter(q.answer)}. {q.options[q.answer]}</h3>
+              <p>{getRationale(q)}</p>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 10, marginTop: 18 }}>
               {q.options.map((option, idx) => {
                 const isSelected = answers[current] === idx;
-                const reveal = submitted || showRationale[current];
                 const isCorrect = q.answer === idx;
-                let classes = "w-full text-left p-4 rounded-2xl border bg-white hover:bg-slate-100 transition";
-                if (reveal && isCorrect) classes = "w-full text-left p-4 rounded-2xl border bg-green-100 border-green-500";
-                if (reveal && isSelected && !isCorrect) classes = "w-full text-left p-4 rounded-2xl border bg-red-100 border-red-500";
-                if (!reveal && isSelected) classes = "w-full text-left p-4 rounded-2xl border bg-blue-100 border-blue-500";
-                return <button key={idx} onClick={() => selectAnswer(idx)} className={classes}>{String.fromCharCode(65 + idx)}. {option}</button>;
+                let bg = "white";
+                let border = "#cbd5e1";
+                if (reveal && isCorrect) { bg = "#dcfce7"; border = "#22c55e"; }
+                if (reveal && isSelected && !isCorrect) { bg = "#fee2e2"; border = "#ef4444"; }
+                if (!reveal && isSelected) { bg = "#dbeafe"; border = "#3b82f6"; }
+                return (
+                  <button key={idx} onClick={() => selectAnswer(idx)} style={{ textAlign: "left", padding: 16, borderRadius: 14, border: `2px solid ${border}`, background: bg, fontSize: 16 }}>
+                    <strong>{getLetter(idx)}.</strong> {option}
+                  </button>
+                );
               })}
             </div>
+          )}
 
-            {(submitted || showRationale[current]) && (
-              <div className="mt-6 p-5 rounded-2xl bg-blue-50 border border-blue-200">
-{answers[current] === q.answer ? (
-  <p className="font-bold text-green-800">
-    Correct! You selected {String.fromCharCode(65 + answers[current])}. {q.options[answers[current]]}
-  </p>
-) : (
-  <p className="font-bold text-red-800">
-    Incorrect. You selected {String.fromCharCode(65 + answers[current])}. {q.options[answers[current]]}
-    <br />
-    Correct Answer: {String.fromCharCode(65 + q.answer)}. {q.options[q.answer]}
-  </p>
-)}
-                <p className="mt-2 text-slate-700">{q.rationale}</p>
-              </div>
-            )}
-          </div>
-        )}
+          {reveal && mode !== "flashcard" && (
+            <div style={{ marginTop: 18, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 16, padding: 16 }}>
+              <strong>
+                Correct Answer: {getLetter(q.answer)}. {q.options[q.answer]}
+              </strong>
+              <p>{getRationale(q)}</p>
+            </div>
+          )}
+        </div>
 
-        <div className="mt-6 flex justify-between items-center gap-3">
-          <button disabled={current === 0} onClick={() => setCurrent(c => Math.max(0, c - 1))} className="px-5 py-3 rounded-xl bg-slate-200 disabled:opacity-40 font-semibold">Previous</button>
-          <select className="p-3 rounded-xl border" value={current} onChange={e => setCurrent(Number(e.target.value))}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginTop: 18, flexWrap: "wrap" }}>
+          <button disabled={current === 0} onClick={previous} style={{ padding: "12px 16px", borderRadius: 12, border: 0, background: "#e2e8f0", fontWeight: 700, opacity: current === 0 ? 0.5 : 1 }}>Previous</button>
+          <select value={current} onChange={e => setCurrent(Number(e.target.value))} style={{ padding: 12, borderRadius: 12, maxWidth: 220 }}>
             {activeQuestions.map((_, idx) => <option key={idx} value={idx}>Question {idx + 1}</option>)}
           </select>
-          <button disabled={current === activeQuestions.length - 1} onClick={() => setCurrent(c => Math.min(activeQuestions.length - 1, c + 1))} className="px-5 py-3 rounded-xl bg-slate-900 text-white disabled:opacity-40 font-semibold">Next</button>
+          <button disabled={current === activeQuestions.length - 1} onClick={next} style={{ padding: "12px 16px", borderRadius: 12, border: 0, background: "#0f172a", color: "white", fontWeight: 700, opacity: current === activeQuestions.length - 1 ? 0.5 : 1 }}>Next</button>
         </div>
       </div>
     </div>
